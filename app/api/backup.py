@@ -9,13 +9,13 @@ router = APIRouter()
 async def backup_date_summary(request: Request, user=Depends(verify_firebase_token)):
     body = await request.json()
     date = body.get("date")
-    date_json = body.get("date_json")
-    if not date or not date_json:
-        raise HTTPException(status_code=400, detail="Missing date or date_json")
+    data_json = body.get("data_json")
+    if not date or not data_json:
+        raise HTTPException(status_code=400, detail="Missing date or data_json")
     user_id = user['uid']
     storage = get_storage_backend()
     try:
-        storage.save_json(user_id, f"data/{date}.json", date_json)
+        storage.save_json(user_id, f"data/{date}.json", data_json)
         logging.info(f"User {user_id} backed up summary for {date}")
         return {"status": "success"}
     except Exception as e:

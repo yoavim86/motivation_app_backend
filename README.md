@@ -26,10 +26,42 @@ uvicorn app.main:app --reload
 - See `deploy/cloud_function_guide.md` and `deploy/monolith_guide.md` for deployment instructions.
 
 ## API Endpoints
-- `POST /backupDateSummary`
-- `POST /chatAIProxy`
-- `POST /saveSettings`
-- `POST /saveAccount`
+
+### `POST /backupDateSummary`
+**Request JSON:**
+```json
+{
+  "date": "2024-06-10",
+  "data_json": { "summary": "Your summary data here" }
+}
+```
+
+### `POST /chatAIProxy`
+**Request JSON:**
+```json
+{
+  "messages": [
+    { "role": "user", "content": "Hello, who are you?" },
+    { "role": "assistant", "content": "I am an AI assistant." }
+  ]
+}
+```
+
+### `POST /saveSettings`
+**Request JSON:**
+```json
+{
+  "settings_file": { "theme": "dark", "notifications": true }
+}
+```
+
+### `POST /saveAccount`
+**Request JSON:**
+```json
+{
+  "account_json": { "email": "user@example.com", "name": "User Name" }
+}
+```
 
 ---
 
