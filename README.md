@@ -63,6 +63,20 @@ uvicorn app.main:app --reload
 }
 ```
 
+### `POST /fullBackup`
+**Request:**
+- `multipart/form-data` with fields:
+  - `file`: The ZIP file containing the full backup.
+  - `date`: The date string (e.g., `2024-06-10`).
+
+**Example using curl:**
+```bash
+curl -X POST "http://localhost:8000/fullBackup" \
+  -H "Authorization: Bearer <FIREBASE_ID_TOKEN>" \
+  -F "file=@backup.zip" \
+  -F "date=2024-06-10"
+```
+
 ---
 
 For questions, see the code or open an issue. 
