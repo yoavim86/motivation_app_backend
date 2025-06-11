@@ -1,0 +1,13 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')
+    FIREBASE_STORAGE_BUCKET = os.getenv('FIREBASE_STORAGE_BUCKET')
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'firebase')
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+    RATE_LIMIT_CHAT_MESSAGES_PER_DAY = int(os.getenv('RATE_LIMIT_CHAT_MESSAGES_PER_DAY', 10))
+    RATE_LIMIT_CHAT_TOKENS_PER_REQUEST = int(os.getenv('RATE_LIMIT_CHAT_TOKENS_PER_REQUEST', 10000)) 
