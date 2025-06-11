@@ -1,8 +1,9 @@
 fastapi
-uvicorn
 firebase-admin
 google-cloud-storage
 python-dotenv
 openai
 pydantic
 httpx 
+mangum
+python-multipart
