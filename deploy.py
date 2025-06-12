@@ -2,6 +2,7 @@ import os
 import subprocess
 from dotenv import load_dotenv
 import shlex
+from google.cloud import storage
 
 # Load .env file
 load_dotenv()
@@ -59,12 +60,29 @@ def test_chat_ai_proxy(id_token):
     print(' '.join(cmd))
     subprocess.run(cmd)
 
+# 4. Upload a zip file as full_backup for a user
+
+def upload_full_backup(zip_path, user_id):
+    if not os.path.isfile(zip_path):
+        print(f"[Error] File not found: {zip_path}")
+        return
+    bucket_name = FIREBASE_STORAGE_BUCKET
+    dest_blob_name = f"{user_id}/full_backup.zip"
+    print(f"[Uploading {zip_path} to gs://{bucket_name}/{dest_blob_name} ...]")
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(dest_blob_name)
+    blob.upload_from_filename(zip_path, content_type='application/zip')
+    print("[Upload complete]")
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Deploy and test Cloud Run service.")
     parser.add_argument('--deploy', action='store_true', help='Deploy Cloud Run service')
     parser.add_argument('--update-env', action='store_true', help='Update Cloud Run service env vars')
     parser.add_argument('--test-chat', metavar='ID_TOKEN', help='Test chatAIProxy endpoint with given Firebase ID token')
+    parser.add_argument('--upload-backup', metavar='ZIP_PATH', help='Upload a zip file as full_backup for a user')
+    parser.add_argument('--user-id', metavar='USER_ID', help='User ID for full_backup upload (required with --upload-backup)')
     args = parser.parse_args()
 
     if args.deploy:
@@ -72,4 +90,9 @@ if __name__ == "__main__":
     if args.update_env:
         update_cloud_run_env()
     if args.test_chat:
-        test_chat_ai_proxy(args.test_chat) 
+        test_chat_ai_proxy(args.test_chat)
+    if args.upload_backup:
+        if not args.user_id:
+            print("[Error] --user-id is required with --upload-backup")
+        else:
+            upload_full_backup(args.upload_backup, args.user_id) 

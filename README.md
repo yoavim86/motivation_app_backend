@@ -92,7 +92,12 @@ python deploy.py --update-env
 
 # Test chatAIProxy endpoint (replace <ID_TOKEN> with a real Firebase ID token)
 python deploy.py --test-chat <ID_TOKEN>
+
+# Upload a zip file as a full_backup for a user (replace <ZIP_PATH> and <USER_ID>)
+python deploy.py --upload-backup <ZIP_PATH> --user-id <USER_ID>
 ```
+
+- The `--upload-backup` option uploads the specified zip file to the user's folder in your Firebase Storage bucket as `full_backup.zip`.
 
 ---
 
