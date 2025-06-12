@@ -1,7 +1,6 @@
-from app.config import Config
+from app.core import get_firebase_storage_bucket
 from app.storage.firebase_storage import FirebaseStorageBackend
 
 def get_storage_backend():
-    if Config.STORAGE_BACKEND == 'firebase':
-        return FirebaseStorageBackend()
-    raise NotImplementedError('Only firebase backend is implemented') 
+    # Only firebase backend is implemented, but this is now config-agnostic
+    return FirebaseStorageBackend() 

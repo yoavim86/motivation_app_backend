@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from app.config import Config
+from app.core import get_openai_api_key
 import openai
 
 class LLMProvider(ABC):
@@ -9,7 +9,7 @@ class LLMProvider(ABC):
 
 class OpenAIProvider(LLMProvider):
     def __init__(self):
-        openai.api_key = Config.OPENAI_API_KEY
+        openai.api_key = get_openai_api_key()
 
     def chat(self, messages: list, **kwargs) -> dict:
         response = openai.ChatCompletion.create(

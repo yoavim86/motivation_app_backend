@@ -1,6 +1,6 @@
 import datetime
 from app.storage import get_storage_backend
-from app.config import Config
+from app.core import get_rate_limit_chat_messages_per_day, get_rate_limit_chat_tokens_per_request
 
 class RateLimiter:
     def __init__(self, user_id: str):
@@ -27,8 +27,8 @@ class RateLimiter:
 
     def check(self, tokens: int):
         usage = self._get_usage()
-        if usage['messages'] >= Config.RATE_LIMIT_CHAT_MESSAGES_PER_DAY:
+        if usage['messages'] >= get_rate_limit_chat_messages_per_day():
             return False, 'Daily message limit reached'
-        if tokens > Config.RATE_LIMIT_CHAT_TOKENS_PER_REQUEST:
+        if tokens > get_rate_limit_chat_tokens_per_request():
             return False, 'Token limit per request exceeded'
         return True, '' 

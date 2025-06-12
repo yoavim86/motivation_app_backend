@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from app.auth.firebase import verify_firebase_token
 from app.rate_limit.limiter import RateLimiter
-from app.config import Config
+from app.core import get_openai_api_key
 import logging
 import httpx
 
@@ -25,7 +25,7 @@ async def chat_ai_proxy(request: Request, user=Depends(verify_firebase_token)):
     if not ok:
         raise HTTPException(status_code=429, detail=reason)
 
-    openai_api_key = Config.OPENAI_API_KEY
+    openai_api_key = get_openai_api_key()
     headers = {
         "Authorization": f"Bearer {openai_api_key}",
         "Content-Type": "application/json"

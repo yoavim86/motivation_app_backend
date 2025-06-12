@@ -1,13 +1,13 @@
 from google.cloud import storage
 import json
 from app.storage.base import StorageBackend
-from app.config import Config
+from app.core import get_firebase_storage_bucket
 import os
 
 class FirebaseStorageBackend(StorageBackend):
     def __init__(self):
         self.client = storage.Client()
-        self.bucket = self.client.bucket(Config.FIREBASE_STORAGE_BUCKET)
+        self.bucket = self.client.bucket(get_firebase_storage_bucket())
 
     def _blob_path(self, user_id: str, path: str) -> str:
         return f"{user_id}/{path}"
