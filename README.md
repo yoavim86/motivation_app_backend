@@ -19,7 +19,7 @@
 
 ## Running Locally
 ```bash
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```
 
 ## Deployment
@@ -75,6 +75,23 @@ curl -X POST "http://localhost:8000/fullBackup" \
   -H "Authorization: Bearer <FIREBASE_ID_TOKEN>" \
   -F "file=@backup.zip" \
   -F "date=2024-06-10"
+```
+
+---
+
+## Deploy and Test with deploy.py
+
+You can use the `deploy.py` script to deploy, update environment variables, and test your Cloud Run service:
+
+```bash
+# Deploy Cloud Run service
+python deploy.py --deploy
+
+# Update environment variables on Cloud Run service
+python deploy.py --update-env
+
+# Test chatAIProxy endpoint (replace <ID_TOKEN> with a real Firebase ID token)
+python deploy.py --test-chat <ID_TOKEN>
 ```
 
 ---
