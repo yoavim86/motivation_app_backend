@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from mangum import Mangum
 from app.api import backup, chat, settings, account
 from app.logging_config import setup_logging
 
@@ -13,9 +12,6 @@ app.include_router(chat.router)
 app.include_router(settings.router)
 app.include_router(account.router)
 
-# Wrap FastAPI app for Cloud Functions
-handler = Mangum(app)
-
-# Required entry point for Cloud Function
-def app_function(request, context=None):
-    return handler(request, context)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)

@@ -7,3 +7,4 @@ pydantic
 httpx 
 mangum
 python-multipart
+uvicorn 
