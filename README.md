@@ -65,16 +65,26 @@ uvicorn main:app --reload
 
 ### `POST /fullBackup`
 **Request:**
-- `multipart/form-data` with fields:
-  - `file`: The ZIP file containing the full backup.
-  - `date`: The date string (e.g., `2024-06-10`).
+- JSON body containing the full backup data. The JSON should include an `exportedAt` field (ISO datetime string), e.g.:
+
+```json
+{
+  "exportedAt": "2025-06-12T14:38:40.447098",
+  "data": { "your": "backup data here" }
+}
+```
+
+- The backend will use the date from `exportedAt` (if present and valid) to name the backup file as `full_backups/YYYY-MM-DD.json`. If missing or invalid, it will use today's date (UTC) and log a warning. If the date does not match today, a warning is logged but the request still succeeds.
 
 **Example using curl:**
 ```bash
 curl -X POST "http://localhost:8000/fullBackup" \
   -H "Authorization: Bearer <FIREBASE_ID_TOKEN>" \
-  -F "file=@backup.zip" \
-  -F "date=2024-06-10"
+  -H "Content-Type: application/json" \
+  -d '{
+    "exportedAt": "2025-06-12T14:38:40.447098",
+    "data": { "your": "backup data here" }
+  }'
 ```
 
 ---
