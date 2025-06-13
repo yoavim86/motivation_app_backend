@@ -66,6 +66,7 @@ async def get_last_full_backup(user=Depends(verify_firebase_token)):
         path = storage.get_latest_full_backup_path(user_id)
         if not path:
             raise HTTPException(status_code=404, detail="No backup found")
+        logging.info(f"Getting last full backup for user {user_id} at {path}")
         data = storage.load_json(user_id, path)
         return data
     except Exception as e:

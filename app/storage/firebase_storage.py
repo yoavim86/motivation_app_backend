@@ -4,6 +4,7 @@ from app.storage.base import StorageBackend
 from app.core import get_firebase_storage_bucket
 import os
 from typing import Optional
+import logging
 
 class FirebaseStorageBackend(StorageBackend):
     def __init__(self):
@@ -34,13 +35,16 @@ class FirebaseStorageBackend(StorageBackend):
         blobs = list(self.bucket.list_blobs(prefix=prefix))
         if not blobs:
             return None
-        # Find the latest by date in filename (assuming YYYY-MM-DD.json)
-        def extract_date(blob):
-            import re
-            match = re.search(r'(\\d{4}-\\d{2}-\\d{2})\\.json$', blob.name)
-            return match.group(1) if match else ''
-        blobs = [b for b in blobs if extract_date(b)]
-        if not blobs:
+        # Extract date from each blob name and find the latest
+        def get_date(blob):
+            try:
+                filename = blob.name.split('/')[-1] # get the filename
+                return filename.replace('.json', '')
+            except Exception:
+                return ""
+        blobs_with_dates = [(b, get_date(b)) for b in blobs if get_date(b)]
+        if not blobs_with_dates:
             return None
-        latest_blob = max(blobs, key=lambda b: extract_date(b))
+        # Sort by date string (ISO format sorts correctly)
+        latest_blob, _ = max(blobs_with_dates, key=lambda x: x[1])
         return latest_blob.name[len(f"{user_id}/"):] 
