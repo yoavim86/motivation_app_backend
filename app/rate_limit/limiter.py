@@ -7,7 +7,7 @@ class RateLimiter:
         self.user_id = user_id
         self.storage = get_storage_backend()
         self.today = datetime.date.today().isoformat()
-        self.chat_ai_path = 'chatAI.json'
+        self.chat_ai_path = 'chatAILimiter.json'
 
     def _get_usage(self):
         if self.storage.file_exists(self.user_id, self.chat_ai_path):
