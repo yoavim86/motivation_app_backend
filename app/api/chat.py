@@ -1,29 +1,44 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from app.auth.firebase import verify_firebase_token
 from app.rate_limit.limiter import RateLimiter
-from app.core import get_openai_api_key
+from app.core import get_openai_api_key, get_openai_chat_model
 import logging
 import httpx
+import tiktoken
+import os
 
 router = APIRouter()
+
+# Accurate token counting using tiktoken
+# OpenAI's chat format: each message is a dict with 'role' and 'content'
+def count_message_tokens(messages, model):
+    encoding = tiktoken.encoding_for_model(model)
+    num_tokens = 0
+    for m in messages:
+        num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+        for key, value in m.items():
+            num_tokens += len(encoding.encode(str(value)))
+    num_tokens += 2  # every reply is primed with <im_start>assistant
+    return num_tokens
 
 @router.post("/chatAIProxy")
 async def chat_ai_proxy(request: Request, user=Depends(verify_firebase_token)):
     body = await request.json()
     messages = body.get("messages")
     # Backend-enforced OpenAI parameters
-    model = "gpt-4o-mini"
-    max_tokens = 3000
+    model = get_openai_chat_model()
+    max_tokens = 400 # 100 words ≈ 130–140 tokens.
     temperature = 0.7
 
     if not messages or not isinstance(messages, list):
         raise HTTPException(status_code=400, detail="Missing or invalid messages")
     user_id = user['uid']
     limiter = RateLimiter(user_id)
-    tokens = sum(len(m.get('content', '')) for m in messages)
+    tokens = count_message_tokens(messages, model)
     ok, reason = limiter.check(tokens)
     if not ok:
-        raise HTTPException(status_code=429, detail=reason)
+        logging.warning(f"Token check failed: {tokens} tokens in request. Reason: {reason}")
+        raise HTTPException(status_code=429, detail=f"{reason} (tokens in request: {tokens})")
 
     openai_api_key = get_openai_api_key()
     headers = {
@@ -47,8 +62,11 @@ async def chat_ai_proxy(request: Request, user=Depends(verify_firebase_token)):
         if response.status_code == 200:
             data = response.json()
             reply = data["choices"][0]["message"]["content"].strip()
-            limiter.increment(tokens)
-            logging.info(f"User {user_id} proxied chatAI")
+            # Use actual prompt_tokens from OpenAI response if available
+            usage = data.get("usage", {})
+            prompt_tokens = usage.get("prompt_tokens", tokens)
+            limiter.increment(prompt_tokens)
+            logging.info(f"User {user_id} proxied chatAI with usage: {usage}")
             return {"reply": reply}
         else:
             logging.error(f"OpenAI error for user {user_id}: {response.text}")

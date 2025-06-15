@@ -28,7 +28,7 @@ class RateLimiter:
     def check(self, tokens: int):
         usage = self._get_usage()
         if usage['messages'] >= get_rate_limit_chat_messages_per_day():
-            return False, 'Daily message limit reached'
+            return False, '[Backend] Daily message limit reached'
         if tokens > get_rate_limit_chat_tokens_per_request():
-            return False, 'Token limit per request exceeded'
+            return False, f'[Backend] Token limit per request exceeded: {tokens} tokens used, limit is {get_rate_limit_chat_tokens_per_request()}'
         return True, '' 

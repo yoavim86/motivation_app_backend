@@ -8,3 +8,4 @@ httpx
 mangum
 python-multipart
 uvicorn 
+tiktoken 
