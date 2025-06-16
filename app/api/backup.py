@@ -1,12 +1,26 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, status, UploadFile, File, Form
 from app.auth.firebase import verify_firebase_token
 from app.storage import get_storage_backend
+from app.core import get_backup_limit
 import logging
 import datetime
 import json
 from datetime import datetime, timezone
 
 router = APIRouter()
+
+def update_backup_limiter(storage, user_id, backup_date):
+    backup_limit = get_backup_limit()
+    limiter_path = 'backupLimiter.json'
+    data = {"date": backup_date, "counter": 1}
+    if storage.file_exists(user_id, limiter_path):
+        existing = storage.load_json(user_id, limiter_path)
+        if existing.get("date") == backup_date:
+            data["counter"] = existing.get("counter", 1) + 1
+        # else: new day, counter stays 1
+    storage.save_json(user_id, limiter_path, data)
+    # Return True if allowed, False if limit exceeded
+    return data["counter"] <= backup_limit, data
 
 @router.post("/backupDateSummary")
 async def backup_date_summary(request: Request, user=Depends(verify_firebase_token)):
@@ -49,6 +63,11 @@ async def full_backup(
         else:
             logging.warning(f"No exportedAt field in backup for user {user_id}")
             backup_date = today_str
+
+        allowed, limiter_data = update_backup_limiter(storage, user_id, backup_date)
+        logging.info(f"Backup limiter for user {user_id}: {limiter_data}")
+        if not allowed:
+            raise HTTPException(status_code=429, detail=f"Daily backup limit ({backup_limit}) reached for {backup_date}")
 
         path = f"full_backups/{backup_date}.json"
         storage.save_json(user_id, path, body)
