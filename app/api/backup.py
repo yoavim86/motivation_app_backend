@@ -9,8 +9,7 @@ from datetime import datetime, timezone
 
 router = APIRouter()
 
-def update_backup_limiter(storage, user_id, backup_date):
-    backup_limit = get_backup_limit()
+def update_backup_limiter(storage, user_id, backup_date, backup_limit):
     limiter_path = 'backupLimiter.json'
     data = {"date": backup_date, "counter": 1}
     if storage.file_exists(user_id, limiter_path):
@@ -64,7 +63,8 @@ async def full_backup(
             logging.warning(f"No exportedAt field in backup for user {user_id}")
             backup_date = today_str
 
-        allowed, limiter_data = update_backup_limiter(storage, user_id, backup_date)
+        backup_limit = get_backup_limit()
+        allowed, limiter_data = update_backup_limiter(storage, user_id, backup_date, backup_limit)
         logging.info(f"Backup limiter for user {user_id}: {limiter_data}")
         if not allowed:
             raise HTTPException(status_code=429, detail=f"Daily backup limit ({backup_limit}) reached for {backup_date}")
@@ -73,6 +73,8 @@ async def full_backup(
         storage.save_json(user_id, path, body)
         logging.info(f"User {user_id} uploaded full backup for {backup_date}")
         return {"status": "success"}
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logging.error(f"Full backup error for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to save full backup")
