@@ -18,8 +18,11 @@ def get_rate_limit_chat_tokens_per_request():
 def get_log_level():
     return os.environ.get("LOG_LEVEL", "INFO")
 
+# def get_openai_chat_model():
+#     return os.environ.get("OPENAI_CHAT_MODEL", "gpt-3.5-turbo")
+
 def get_openai_chat_model():
-    return os.environ.get("OPENAI_CHAT_MODEL", "gpt-3.5-turbo")
+    return os.environ.get("OPENAI_CHAT_MODEL", "gpt-4o-mini")
 
 def get_backup_limit():
     return int(os.environ.get("BACKUP_LIMIT", "5")) 
