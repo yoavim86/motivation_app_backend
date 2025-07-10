@@ -13,7 +13,7 @@ def get_rate_limit_chat_messages_per_day():
     return int(os.environ.get("RATE_LIMIT_CHAT_MESSAGES_PER_DAY", "20"))
 
 def get_rate_limit_chat_tokens_per_request():
-    return int(os.environ.get("RATE_LIMIT_CHAT_TOKENS_PER_REQUEST", "7000"))
+    return int(os.environ.get("RATE_LIMIT_CHAT_TOKENS_PER_REQUEST", "13000"))
 
 def get_log_level():
     return os.environ.get("LOG_LEVEL", "INFO")
