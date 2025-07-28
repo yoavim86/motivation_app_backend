@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from app.auth.firebase import verify_firebase_token
 from app.rate_limit.limiter import RateLimiter
-from app.core import get_openai_api_key, get_openai_chat_model
+from app.core import get_openai_api_key, get_openai_chat_model, get_rate_limit_chat_messages_per_day
 import logging
 import httpx
 import tiktoken
@@ -61,8 +61,19 @@ async def _chat_ai_proxy(messages, model, user_id):
         usage = data.get("usage", {})
         prompt_tokens = usage.get("prompt_tokens", tokens)
         limiter.increment(prompt_tokens)
+        
+        # Get current usage after incrementing
+        current_usage = limiter._get_usage()
+        daily_limit = get_rate_limit_chat_messages_per_day()
+        
         logging.info(f"User {user_id} proxied chatAI with usage: {usage}")
-        return {"reply": reply}
+        return {
+            "reply": reply, 
+            "rate_limit": {
+                "daily_limit": daily_limit,
+                "usage": current_usage
+            }
+        }
     else:
         logging.error(f"OpenAI error for user {user_id}: {response.text}")
         raise HTTPException(status_code=500, detail=f"OpenAI error: {response.text}")
