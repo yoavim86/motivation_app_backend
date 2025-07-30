@@ -8,4 +8,5 @@ httpx
 mangum
 python-multipart
 uvicorn 
-tiktoken 
+tiktoken
+spotipy 

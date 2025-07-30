@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import backup, chat, settings, account, content, report, version
+from app.api import backup, chat, settings, account, content, report, version, spotify
 from app.logging_config import setup_logging
 
 setup_logging()
@@ -14,6 +14,7 @@ app.include_router(account.router)
 app.include_router(content.router)
 app.include_router(report.router)
 app.include_router(version.router)
+app.include_router(spotify.router)
 
 if __name__ == "__main__":
     import uvicorn

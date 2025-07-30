@@ -26,3 +26,9 @@ def get_openai_chat_model():
 
 def get_backup_limit():
     return int(os.environ.get("BACKUP_LIMIT", "5")) 
+
+def get_spotify_client_id():
+    return os.environ.get("SPOTIFY_CLIENT_ID")
+
+def get_spotify_client_secret():
+    return os.environ.get("SPOTIFY_CLIENT_SECRET")
