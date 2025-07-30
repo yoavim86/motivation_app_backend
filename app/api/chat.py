@@ -23,8 +23,8 @@ def count_message_tokens(messages, model):
 
 async def _chat_ai_proxy(messages, model, user_id):
     # Backend-enforced OpenAI parameters
-    max_tokens = 400 # 100 words ≈ 130–140 tokens.
-    temperature = 0.7
+    max_tokens = 500 # 100 words ≈ 130–140 tokens.
+    temperature = 0.9
 
     if not messages or not isinstance(messages, list):
         raise HTTPException(status_code=400, detail="Missing or invalid messages")
